@@ -6,9 +6,9 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <p>
+        <h2>
           Skillsme Beta Text Editor
-        </p>
+        </h2>
       </header>
       <Texteditorcontainer/>
     </div>

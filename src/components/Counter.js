@@ -2,27 +2,24 @@ import { useState } from "react";
 import Tooltip from '@material-ui/core/Tooltip';
 
 export default function Counter(props) {
-    const [readonly, setReadonly] = useState(true)
-    var count = props.type === 'fontWeight' ? 100 : 1;
-    var suffix = props.type === 'fontWeight' ? 'weight' : 'size';
     return (
         <div style={counterContainer}>
-            <Tooltip title={`Decrease font ${suffix}`} aria-label={`Decrease font ${suffix}`} placement="top">
+            <Tooltip title={"Decrease font size (px)"} aria-label={"Decrease font size"} placement="top">
                 <div>
-                    <span class="material-icons" style={{ border: '1px solid black' }} onClick={() => {
-                        props.setDropdownStyle(props.type, props.value - count)
+                    <span className="material-icons" style={iconButton} onClick={() => {
+                        props.setDropdownStyle(props.type, props.value - 1)
                     }}>remove</span>
                 </div>
             </Tooltip>
-            <Tooltip title={`Font ${suffix}`} aria-label={`Font ${suffix}`} placement="top">
-                <input type="tel" style={{ width: '30%', height: '20px', textAlign: 'center' }} {...props.type === 'fontWeight' && { disabled: true }} value={props.value} onFocus={() => setReadonly(false)} onBlur={() => setReadonly(true)} onInput={(e) => {
-                    props.setDropdownStyle(props.type, e.target.value)
+            <Tooltip title={"Font size (px)"} aria-label={"Font size"} placement="top">
+                <input type="tel" style={{ width: '30%', height: '20px', textAlign: 'center' }} value={props.value}  onChange={(e) => {
+                    props.setDropdownStyle(props.type, Number(e.target.value))
                 }} />
             </Tooltip>
-            <Tooltip title={`Increase font ${suffix}`} aria-label={`Increase font ${suffix}`} placement="top">
+            <Tooltip title={"Increase font size (px)"} aria-label={"Increase font size"} placement="top">
                 <div>
-                    <span class="material-icons" style={{ border: '1px solid black' }} onClick={() => {
-                        props.setDropdownStyle(props.type, Number(props.value) + count)
+                    <span className="material-icons" style={iconButton} onClick={() => {
+                        props.setDropdownStyle(props.type, Number(props.value) + 1)
                     }}>add</span>
                 </div>
             </Tooltip>
@@ -32,5 +29,12 @@ export default function Counter(props) {
 
 const counterContainer = {
     display: 'flex',
+}
 
+const iconButton = {
+    borderRadius: 5,
+    border: 'none',
+    marginLeft: '6px',
+    marginRight: '6px',
+    boxShadow: '-10px -10px 30px 0 #ffffff, 10px 10px 30px 0 #aeaec090',
 }
