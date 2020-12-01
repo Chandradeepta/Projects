@@ -22,7 +22,7 @@ function App() {
   return (
     <div className="App" style={{ background: isDark ? CONSTANTS.DARK_MODE_BG : CONSTANTS.LIGHT_MODE_BG }}>
       <header className="App-header">
-          <h3 style={{ color: isDark ? CONSTANTS.LIGHT_MODE_BG : CONSTANTS.DARK_MODE_BG }}>Easy Docs</h3>
+          <h3 style={{ color: isDark ? CONSTANTS.LIGHT_MODE_BG : CONSTANTS.DARK_MODE_BG }}>EzDocs</h3>
         <span 
           className="material-icons"
           style={{color: isDark ? 'yellow' : CONSTANTS.DARK_MODE_BG}} 
