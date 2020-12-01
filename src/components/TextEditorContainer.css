@@ -20,13 +20,41 @@
 	.styleBar {
 		display: none !important;
     }
+
+    #textareaContainer {
+        box-shadow: none !important;
+        background: white !important;
+    }
     
     .selectable-textarea {
+        display: block !important;
         border: '0px solid black' !important;
         outline: 'none' !important;
+        width: auto !important;
+        height: auto !important;
+        overflow: visible !important;
     }
+    
 }
 
 #textarea:focus {
    outline: none;
 }
+
+.link-panel {
+    padding: 10px
+}
+
+.MuiOutlinedInput-inputMarginDense {
+    padding: 8px !important;
+}
+
+#add-image-url {
+    width: 100%;
+    min-width: 500px;
+}
+
+.image-dialog {
+    padding: 0 !important;
+}
+

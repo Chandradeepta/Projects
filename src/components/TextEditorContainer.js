@@ -1,23 +1,41 @@
-import React, { useEffect, useRef } from 'react';
-import { Button, Menu, MenuItem, TextField, Tooltip } from '@material-ui/core';
+import React, { useContext, useEffect, useRef } from 'react';
+import { Backdrop, Button, CircularProgress, ClickAwayListener, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, makeStyles, Menu, MenuItem, Paper, Popper, TextField, Tooltip } from '@material-ui/core';
 import { useState } from 'react';
 import Counter from './Counter';
 import './TextEditorContainer.css';
+import { ThemeContext } from '../utils/ThemeContext';
+import { CONSTANTS } from '../utils/constants';
 
-const initialState = {
-    mouseX: null,
-    mouseY: null,
-};
+const options = [
+    "Times New Roman, Times, serif",
+    "Arial, Helvetica, sans-serif",
+    "Lucida Console, Courier, monospace"
+];
+
+const useStyles = makeStyles((theme) => ({
+    backdrop: {
+        zIndex: theme.zIndex.drawer + 1,
+        color: '#fff',
+    },
+}));
+
 export default function Texteditorcontainer(props) {
+    const backDropClass = useStyles();
+    const isDark = useContext(ThemeContext);
+    const neuromorphic = {
+        boxShadow: !isDark ?
+            `-10px -10px 30px 0 ${CONSTANTS.LIGHT_MODE_BS_LIGHT_COLOR}, 10px 10px 30px 0 ${CONSTANTS.LIGHT_MODE_BS_DARK_COLOR}` :
+            `4px 4px 8px 0 ${CONSTANTS.DARK_MODE_BS_DARK_COLOR}, -4px -4px 8px 0 ${CONSTANTS.DARK_MODE_BS_LIGHT_COLOR}`,
+        background: isDark ? `${CONSTANTS.DARK_MODE_BG}` : `${CONSTANTS.LIGHT_MODE_BG}`,
+        color: isDark ? `${CONSTANTS.LIGHT_MODE_BG}` : `${CONSTANTS.DARK_MODE_BG}`
+    }
+
     const [styleObject, setStyleObject] = useState({
-        textAlign: 'left',
-        fontSize: 16,
-        isBold: false,
-        decoration: 'none',
-        color: '#000000',
-        addLinkPressed: false
+        fontSize: 3,
+        fontName: options[1]
     });
 
+    // Menu state
     const [anchorEl, setAnchorEl] = React.useState(null);
 
     // Menu Selection Index
@@ -30,58 +48,36 @@ export default function Texteditorcontainer(props) {
         selectedText: ''
     });
 
-    const [linkText, setLinkText] = useState('')
+    // Add Link : Selected Text
+    const [linkText, setLinkText] = useState('');
 
-    const [state, setState] = React.useState(initialState);
+    // Popper ID
+    const id = Boolean(anchorEl?.link) ? 'simple-popper' : undefined;
 
+    // Add link textfield refs
     const linkValueRef = useRef();
+    const linkTextRef = useRef();
+
+    // Image url
+    const [imgUrl, setImgUrl] = useState({
+        url: '',
+        isValid: false
+    })
+
 
     // Font options
-    const options = [
-        "Times New Roman, Times, serif",
-        "Arial, Helvetica, sans-serif",
-        "Lucida Console, Courier, monospace"
-    ];
-
-    // const handleLinkShow = (event) => {
-    //     event.preventDefault();
-    //     setState({
-    //         mouseX: event.clientX - 2,
-    //         mouseY: event.clientY - 4,
-    //     });
-    // };
-
-    // const handleLinkHide = () => {
-    //     setState(initialState);
-    // };
-
-    const handleSelection = () => {
-        setSelectedTextObject({
-            selection: window.getSelection(),
-            range: window.getSelection().getRangeAt(0),
-            selectedText: window.getSelection().toString()
-        })
+    const getSelectedFont = () => {
+        if (document.getSelection.toString()) {
+            var fontName = document.getSelection().getRangeAt(0).startContainer.parentNode;
+            setStyleObject({ ...styleObject, fontName: options.filter((font) => font === fontName)[0] })
+        }
     }
-
-    //TODO Selection based formatting
-    // const handleSelectedStyle = (type, value) => {
-
-    //     if (window.getSelection().anchorNode.parentElement.className === 'selectable-textarea') {
-    //         window.getSelection().modify('move', 'backward', 'line');
-    //         window.getSelection().modify('extend', 'forward', 'paragraph');
-    //         let el = document.createElement('div');
-    //         el.setAttribute('style', `${type}: ${value};`)
-    //         window.getSelection().getRangeAt(0).surroundContents(el);
-    //     } else {
-    //         window.getSelection().focusNode.children[0].style.textAlign = value
-    //     }
-    //     console.log(window.getSelection().anchorNode.parentElement.className)
-    // }
 
     const handleMenuClick = (event, type) => {
         setAnchorEl({
             [type]: event.currentTarget
         });
+
     };
 
     const handleClose = (type) => {
@@ -92,7 +88,7 @@ export default function Texteditorcontainer(props) {
 
     // font family menu handle
     const handleMenuItemClick = (event, index, type) => {
-        textAreaStyle.fontFamily = options[index]
+        getSelectedFont();
         setSelectedIndex(index);
         setAnchorEl({
             [type]: null
@@ -103,9 +99,9 @@ export default function Texteditorcontainer(props) {
         setStyleObject({ ...styleObject, [type]: value })
     }
 
-    const setDropdownStyle = (type, value) => {
-        if (value) {
-            textAreaStyle[type] = value;
+    const setFontSize = (type, value) => {
+        if (value < 8 && value) {
+            document.execCommand(type, false, value)
             setStyleObject({ ...styleObject, [type]: value })
         }
     }
@@ -113,63 +109,53 @@ export default function Texteditorcontainer(props) {
     const handleAddLink = () => {
         try {
             var url = new URL(linkValueRef.current.value);
+            var selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(selectedTextObject.range);
+            linkText !== selectedTextObject.selectedText &&
+                document.execCommand('delete');
+            document.execCommand('insertHTML', false, `<a href=${url} contenteditable="false" target='_blank'>${linkText}</a>`);
+            handleClose('link');
+            linkValueRef.current.value = '';
         } catch (e) {
             return alert('Enter valid url')
         }
-        if (selectedTextObject.range) {
-            let element = document.createElement("a");
-            element.setAttribute('href', url);
-            element.setAttribute('target', '_blank');
-            try {
-                selectedTextObject.range.surroundContents(element);
-            } catch (e) {
-                let start = selectedTextObject.selection.anchorOffset;
-                let end = selectedTextObject.selection.focusOffset;
-                selectedTextObject.selection.modify('extend', 'forward', 'line');
-            }
-            handleClose('link');
-            linkValueRef.current.value = ""
-        }
     }
 
-    // const isLink = () => {
-    //     const selection = selectedTextObject.selection
-    //     const startA = selection?.anchorNode.parentNode.tagName === 'A'
-    //     const endA = selection?.focusNode.parentNode.tagName === 'A'
-    //     return startA || endA
-    // }
+    const handleSelection = () => {
+        setSelectedTextObject({
+            selection: window.getSelection(),
+            range: window.getSelection().getRangeAt(0),
+            selectedText: window.getSelection().toString()
+        })
+    }
 
     return (
         <section style={container}>
-            <section style={styleBar} className="styleBar">
-                <div style={alignItems}>
+            <section style={{ ...styleBar, ...neuromorphic }} className="styleBar">
+                <div style={{ flex: 1, ...alignItems }}>
                     <Tooltip title="Left align" aria-label="Left align" placement="top">
                         <span className="material-icons" onClick={() => {
-                            textAreaStyle.textAlign = 'left';
-                            setStyle('textAlign', textAreaStyle.textAlign)
-                        }} style={styleObject.textAlign === 'left' ? { ...selected } : { ...icons, userSelect: 'none' }}>format_align_left</span>
+                            document.execCommand('justifyLeft', false, '')
+                        }} style={{ ...icons, ...neuromorphic, userSelect: 'none' }}>format_align_left</span>
                     </Tooltip>
 
                     <Tooltip title="Center align" aria-label="Center align" placement="top">
                         <span className="material-icons" onClick={() => {
-                            textAreaStyle.textAlign = 'center';
-                            // handleSelectedStyle('text-align', 'center')
-
-                            setStyle('textAlign', textAreaStyle.textAlign)
-                        }} style={styleObject.textAlign === 'center' ? { ...selected } : { ...icons, userSelect: 'none' }}>format_align_center</span>
+                            document.execCommand('justifyCenter', false, '')
+                        }} style={{ ...icons, ...neuromorphic, userSelect: 'none' }}>format_align_center</span>
                     </Tooltip>
 
                     <Tooltip title="Right align" aria-label="Right align" placement="top">
                         <span className="material-icons" onClick={() => {
-                            textAreaStyle.textAlign = 'right';
-                            setStyle('textAlign', textAreaStyle.textAlign)
-                        }} style={styleObject.textAlign === 'right' ? { ...selected } : { ...icons, userSelect: 'none' }}>format_align_right</span>
+                            document.execCommand('justifyRight', false, '')
+                        }} style={{ ...icons, ...neuromorphic, userSelect: 'none' }}>format_align_right</span>
                     </Tooltip>
                 </div>
                 <div className={{ ...alignItems, flex: 1 }}>
                     <Tooltip title="Change font style" aria-label="Change font style" placement="top">
                         <Button variant="outlined" aria-controls="font-menu" id="font-menu" aria-haspopup="true" onClick={(e) => handleMenuClick(e, 'font')} style={{ fontSize: '10px', ...neuromorphic }}>
-                            {options[selectedIndex] || "Open Menu"}
+                            {styleObject.fontName || options[1]}
                         </Button>
                     </Tooltip>
                     <Menu
@@ -184,6 +170,7 @@ export default function Texteditorcontainer(props) {
                                 key={option}
                                 selected={index === selectedIndex}
                                 onClick={(event) => {
+                                    document.execCommand('fontName', false, options[index])
                                     handleMenuItemClick(event, index, 'font')
                                 }}
                             >
@@ -192,83 +179,180 @@ export default function Texteditorcontainer(props) {
                         ))}
                     </Menu>
                 </div>
-                <div style={{ ...alignItems, width: '40%' }}>
-                    <Counter setDropdownStyle={setDropdownStyle} type={'fontSize'} value={styleObject.fontSize} neuromorphic={neuromorphic} />
+                <div style={{ ...alignItems, flex: 3 }}>
+                    <Counter setFontSize={setFontSize} type={'fontSize'} value={styleObject.fontSize} neuromorphic={neuromorphic} />
                     <Tooltip title="Bold" aria-label="Bold" placement="top">
                         <div>
                             <span
                                 class="material-icons"
-                                style={textAreaStyle.fontWeight === 700 ? { ...selected } : { ...icons }}
+                                style={{ ...icons, ...neuromorphic }}
                                 onClick={() => {
-                                    textAreaStyle.fontWeight = textAreaStyle.fontWeight === 700 ? 100 : 700
-                                    setStyle('isBold', !styleObject.isBold)
+                                    document.execCommand('bold')
                                 }}>format_bold</span>
                         </div>
                     </Tooltip>
                     <Tooltip title="Underline" aria-label="Underline" placement="top">
                         <div>
                             <span className="material-icons" onClick={() => {
-                                textAreaStyle.textDecoration = textAreaStyle.textDecoration === 'none' ? 'underline' : 'none'
-                                setStyle('textDecoration', textAreaStyle.textDecoration)
-                            }} style={textAreaStyle.textDecoration === 'underline' ? { ...selected } : { ...icons }}>format_underlined</span>
+                                document.execCommand('underline');
+                            }} style={{ ...icons, ...neuromorphic }}>format_underlined</span>
                         </div>
                     </Tooltip>
+
+                    {/* Add Image Section Start*/}
+
+                    <Tooltip title="Add photo" aria-label="addphoto" placement="top">
+                        <div>
+                            <span
+                                className="material-icons"
+                                aria-controls="image-menu"
+                                aria-haspopup="true"
+                                onClick={(e) => handleMenuClick(e, 'image')}
+                                style={{ ...icons, ...neuromorphic }}>add_photo_alternate</span>
+                        </div>
+                    </Tooltip>
+                    <Menu
+                        id="image-menu"
+                        anchorEl={anchorEl?.image}
+                        keepMounted
+                        open={Boolean(anchorEl?.image)}
+                        onClose={() => handleClose('image')}
+                    >
+                        <MenuItem onClick={(e) => handleMenuClick(e, 'dialog')}>Profile</MenuItem>
+                    </Menu>
+
+                    <Dialog
+                        open={Boolean(anchorEl?.dialog)}
+                        onClose={() => handleClose('dialog')}
+                        aria-labelledby="alert-dialog-title"
+                        aria-describedby="alert-dialog-description"
+                        className="image-dialog"
+                    >
+                        <DialogTitle id="alert-dialog-title" style={{...imgUrl.isValid && { display: "none" }}}>
+                            {"Insert image"}
+                        </DialogTitle>
+                        <DialogContent style={{...imgUrl.isValid && { padding: 0 }}}>
+                            <DialogContentText id="alert-dialog-description">
+                                {imgUrl.isValid ? <img src={imgUrl.url} /> :
+                                    <TextField
+                                        id="add-image-url"
+                                        type="url"
+                                        fullWidth
+                                        InputLabelProps={{
+                                            shrink: true,
+                                        }}
+                                        variant="standard"
+                                        onInput={(e) => {
+                                            let img = new Image();
+                                            img.src = e.target.value;
+                                            img.onload = () => {
+                                                setImgUrl({ url: img.src, isValid: true })
+                                            }
+                                            img.onerror = () => {
+                                                setImgUrl({ url: img.src, isValid: false })
+                                            };
+                                            setImgUrl({ ...imgUrl, url: e.target.value })
+                                        }}
+                                    />}
+                            </DialogContentText>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={handleClose}>Cancel</Button>
+                            <Button onClick={handleClose} autoFocus {...!imgUrl.isValid && { disabled: true }}>
+                                Insert
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
+
+                    {/* Add Image Section End*/}
+
+                    {/* Add Link Section Start*/}
 
                     <Tooltip title="Add link" aria-label="Add link" placement="top">
                         <div>
                             <span
                                 className="material-icons"
-                                aria-controls="simple-menu"
-                                id="font-menu"
+                                aria-controls="link-menu"
+                                id="link-menu"
                                 aria-haspopup="true"
                                 onClick={(e) => {
                                     setStyle('addLinkPressed', !styleObject.addLinkPressed);
-                                    handleMenuClick(e, 'link');
+                                    Boolean(anchorEl?.link) ? handleClose('link') : handleMenuClick(e, 'link');
                                     setLinkText(selectedTextObject.selectedText)
-                                }} style={styleObject.addLinkPressed ? { ...selected } : { ...icons }}>link</span>
+                                }} style={{ ...icons, ...neuromorphic }}>link</span>
                         </div>
                     </Tooltip>
-                    <Menu
-                        id="lock-menu"
-                        anchorEl={anchorEl?.link}
-                        keepMounted
-                        open={Boolean(anchorEl?.link)}
-                        onClose={() => handleClose('link')}
 
-                    >
-                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <TextField
-                                id="linkText"
-                                label="Text"
-                                size="small"
-                                variant="outlined"
-                                style={{ margin: 10 }}
-                                value={linkText}
-                            />
-                            <div style={{ display: 'flex', flexDirection: 'row' }}>
-                                <TextField
-                                    id="linkValue"
-                                    label="Link"
-                                    size="small"
-                                    variant="outlined"
-                                    inputRef={linkValueRef}
-                                    style={{ margin: 10 }}
-                                />
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    disableElevation
-                                    size="small"
-                                    style={{ margin: 10 }}
-                                    onClick={handleAddLink}
-                                    {...!selectedTextObject.selectedText && { disabled: true }}>
-                                    Apply
+                    <Popper
+                        id={id}
+                        open={Boolean(anchorEl?.link)}
+                        anchorEl={anchorEl?.link}
+                        modifiers={{
+                            flip: {
+                                enabled: true,
+                            },
+                            preventOverflow: {
+                                enabled: true,
+                                boundariesElement: 'viewport',
+                            },
+                            offset: {
+                                enabled: true,
+                                offset: '0,20'
+                            }
+
+                        }}>
+                        <ClickAwayListener onClickAway={() => handleClose('link')}>
+                            <Paper className="link-panel" style={{ width: '400px', boxShadow: 'rgba(60, 64, 67, 0.15) 0px 1px 3px 1px' }}>
+                                <div style={{ display: 'flex' }}>
+                                    <TextField
+                                        id="linkText"
+                                        label="Text"
+                                        size="small"
+                                        variant="outlined"
+                                        style={{ margin: 10, userSelect: 'none', flex: 1 }}
+                                        value={linkText}
+                                        inputRef={linkTextRef}
+                                        onChange={(e) => {
+                                            setLinkText(e.target.value);
+                                        }}
+                                        InputLabelProps={{
+                                            shrink: true,
+                                        }}
+                                    />
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'row', background: 'white' }}>
+                                    <TextField
+                                        id="linkValue"
+                                        label="Link"
+                                        size="small"
+                                        variant="outlined"
+                                        inputRef={linkValueRef}
+                                        style={{ margin: 10, userSelect: 'none', flex: 1 }}
+                                        placeholder="Paste a link"
+                                        InputLabelProps={{
+                                            shrink: true,
+                                        }}
+                                    />
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        disableElevation
+                                        size="small"
+                                        style={{ margin: 10, userSelect: 'none', }}
+                                        id="link-button"
+                                        onClick={handleAddLink}
+                                        {...(!linkText) && { disabled: true }}
+                                    >
+                                        Apply
                                 </Button>
-                            </div>
-                        </div>
-                    </Menu>
-                    {/* {TODO} */}
-                    {/* <Tooltip title="Highlight color" aria-label="Highlight color" placement="top">
+                                </div>
+                            </Paper>
+                        </ClickAwayListener>
+                    </Popper>
+
+                    {/* Add Link Section End*/}
+
+                    <Tooltip title="Text color" aria-label="Text color" placement="top">
                         <div style={{ display: 'flex', alignItems: 'center' }}>
                             <input
                                 type="color"
@@ -276,32 +360,46 @@ export default function Texteditorcontainer(props) {
                                 style={colorPicker}
                                 onChange={(e) => {
                                     document.getElementById('color-dropper').style.color = e.target.value
-                                    openColorPicker()
-                                    setStyleObject({ ...styleObject, color: e.target.value })
+                                    document.execCommand('foreColor', false, e.target.value)
                                 }} />
 
-                            <i className="fas fa-eye-dropper" id="color-dropper" ></i>
+                            <span className="material-icons" id="color-dropper" style={{ ...icons, ...neuromorphic }}>text_format</span>
                         </div>
-                    </Tooltip> */}
+                    </Tooltip>
+
+                    <Tooltip title="Highlight color" aria-label="Highlight color" placement="top">
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                            <input
+                                type="color"
+                                id="color-picker"
+                                style={colorPicker}
+                                onChange={(e) => {
+                                    document.getElementById('color-dropper').style.color = e.target.value
+                                    document.execCommand('hiliteColor', false, e.target.value)
+                                }} />
+
+                            <span className="material-icons" id="color-dropper" style={{ ...icons, ...neuromorphic }}>colorize</span>
+                        </div>
+                    </Tooltip>
+
                 </div>
             </section>
-            <div
-                style={{ ...textAreaStyle }}
-                contentEditable="true"
-                id="textarea"
-                className="selectable-textarea"
-                placeholder='Please write here'
-                onSelect={() => {
-                    handleSelection();
-                }}
-            ></div>
+            <div style={{ ...textareaContainer, ...neuromorphic }} id="textareaContainer">
+                <div
+                    style={textAreaStyle}
+                    contentEditable="true"
+                    id="textarea"
+                    className="selectable-textarea"
+                    placeholder='Please write here'
+                    onClick={() => setStyleObject({ ...styleObject, fontSize: 3 })}
+                    onSelect={() => handleSelection()}
+                />
+            </div>
         </section>
     )
 }
 
-const neuromorphic = {
-    boxShadow: '-10px -10px 30px 0 #ffffff, 10px 10px 30px 0 #aeaec090',
-}
+
 
 const container = {
     display: 'flex',
@@ -313,20 +411,24 @@ const container = {
 
 }
 
-const textAreaStyle = {
+const textareaContainer = {
     minWidth: '100%',
     width: '100%',
     maxHeight: '100%',
     minHeight: '300px',
-    textAlign: 'left',
-    fontSize: '16',
-    resize: 'none',
-    fontWeight: '100',
-    textDecoration: 'none',
-    padding: '10px',
     borderRadius: 10,
+    padding: 10,
+    display: 'flex',
+}
+
+const textAreaStyle = {
+    resize: 'none',
+    padding: '10px',
     overflow: 'auto',
-    ...neuromorphic
+    backgroundColor: 'white',
+    margin: 10,
+    flex: 1,
+    textAlign: 'left',
 }
 
 const styleBar = {
@@ -339,7 +441,6 @@ const styleBar = {
     margin: '3px',
     borderRadius: 10,
     marginBottom: '2%',
-    ...neuromorphic
 }
 
 const colorPicker = {
@@ -351,22 +452,14 @@ const colorPicker = {
 const alignItems = {
     display: 'flex',
     justifyContent: 'space-evenly',
-    width: '15%',
-    alignItems: 'center'
-}
+    alignItems: 'center',
 
-const selected = {
-    backgroundColor: 'inherit',
-    borderRadius: '50%',
-    padding: '8px 9px',
-    boxShadow: 'inset -10px -10px 30px 0 #ffffff, inset 10px 10px 30px 0 #aeaec090',
-    color: 'dodgerblue'
 }
 
 const icons = {
     borderRadius: '50%',
     padding: '8px 9px',
-    ...neuromorphic
+    userSelect: 'none',
 }
 
 
