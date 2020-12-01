@@ -3,21 +3,22 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
+  min-width: 1200px;
+  overflow: auto;
 }
 
 .App-header {
-  background-color: #282c34;
   min-height: 1vh;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
-  color: white;
 }
 
-.App-header > h2 {
+.App-header > h3 {
   width: 90%;
+  letter-spacing: 5px;
 }
 
 .App-header > .material-icons {

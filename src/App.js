@@ -19,15 +19,16 @@ function App() {
   });
 
 
-
-
   return (
     <div className="App" style={{ background: isDark ? CONSTANTS.DARK_MODE_BG : CONSTANTS.LIGHT_MODE_BG }}>
       <header className="App-header">
-        <h2 >
-          Skillsme Beta Text Editor
-        </h2>
-        <span class="material-icons" onClick={() => setDark(!isDark)}>{!isDark ? 'nights_stay' : 'wb_sunny'}</span>
+          <h3 style={{ color: isDark ? CONSTANTS.LIGHT_MODE_BG : CONSTANTS.DARK_MODE_BG }}>Easy Docs</h3>
+        <span 
+          className="material-icons"
+          style={{color: isDark ? 'yellow' : CONSTANTS.DARK_MODE_BG}} 
+          onClick={() => setDark(!isDark)}>
+            {!isDark ? 'nights_stay' : 'wb_sunny'}
+          </span>
       </header>
       <ThemeProvider theme={outerTheme}>
         <ThemeContextProvider value={isDark}>

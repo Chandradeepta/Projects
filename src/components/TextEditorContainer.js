@@ -1,12 +1,31 @@
-import React, { useContext, useEffect, useRef } from 'react';
-import { Backdrop, Button, CircularProgress, ClickAwayListener, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, makeStyles, Menu, MenuItem, Paper, Popper, TextField, Tooltip } from '@material-ui/core';
-import { useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
+import { 
+    Button, 
+    ClickAwayListener, 
+    Dialog,
+    DialogTitle, 
+    DialogActions, 
+    DialogContent, 
+    DialogContentText, 
+    ListItemIcon, 
+    makeStyles, 
+    Menu, 
+    MenuItem, 
+    Paper, 
+    Popper, 
+    TextField, 
+    Tooltip, 
+    Typography } from '@material-ui/core';
+import InsertLinkIcon from '@material-ui/icons/InsertLink';
+
 import Counter from './Counter';
-import './TextEditorContainer.css';
 import { ThemeContext } from '../utils/ThemeContext';
 import { CONSTANTS } from '../utils/constants';
 
-const options = [
+import './TextEditorContainer.css';
+
+
+const fontNames = [
     "Times New Roman, Times, serif",
     "Arial, Helvetica, sans-serif",
     "Lucida Console, Courier, monospace"
@@ -20,11 +39,10 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Texteditorcontainer(props) {
-    const backDropClass = useStyles();
     const isDark = useContext(ThemeContext);
     const neuromorphic = {
         boxShadow: !isDark ?
-            `-10px -10px 30px 0 ${CONSTANTS.LIGHT_MODE_BS_LIGHT_COLOR}, 10px 10px 30px 0 ${CONSTANTS.LIGHT_MODE_BS_DARK_COLOR}` :
+            `-10px -10px 20px 0 ${CONSTANTS.LIGHT_MODE_BS_LIGHT_COLOR}, 10px 10px 20px 0 ${CONSTANTS.LIGHT_MODE_BS_DARK_COLOR}` :
             `4px 4px 8px 0 ${CONSTANTS.DARK_MODE_BS_DARK_COLOR}, -4px -4px 8px 0 ${CONSTANTS.DARK_MODE_BS_LIGHT_COLOR}`,
         background: isDark ? `${CONSTANTS.DARK_MODE_BG}` : `${CONSTANTS.LIGHT_MODE_BG}`,
         color: isDark ? `${CONSTANTS.LIGHT_MODE_BG}` : `${CONSTANTS.DARK_MODE_BG}`
@@ -32,7 +50,7 @@ export default function Texteditorcontainer(props) {
 
     const [styleObject, setStyleObject] = useState({
         fontSize: 3,
-        fontName: options[1]
+        fontName: fontNames[1]
     });
 
     // Menu state
@@ -64,12 +82,11 @@ export default function Texteditorcontainer(props) {
         isValid: false
     })
 
-
     // Font options
     const getSelectedFont = () => {
         if (document.getSelection.toString()) {
             var fontName = document.getSelection().getRangeAt(0).startContainer.parentNode;
-            setStyleObject({ ...styleObject, fontName: options.filter((font) => font === fontName)[0] })
+            setStyleObject({ ...styleObject, fontName: fontNames.filter((font) => font === fontName)[0] })
         }
     }
 
@@ -77,7 +94,6 @@ export default function Texteditorcontainer(props) {
         setAnchorEl({
             [type]: event.currentTarget
         });
-
     };
 
     const handleClose = (type) => {
@@ -130,9 +146,22 @@ export default function Texteditorcontainer(props) {
         })
     }
 
+    const handleLocalImageFile = (e) => {
+        handleClose('imageMenu');
+        document.getElementById("textarea").focus();
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            document.getElementById("textarea").focus();
+            document.execCommand('insertImage', false, e.target.result);
+            document.execCommand('enableObjectResizing')
+        }
+        reader.readAsDataURL(e.target.files[0]);
+    }
+
     return (
         <section style={container}>
             <section style={{ ...styleBar, ...neuromorphic }} className="styleBar">
+                
                 <div style={{ flex: 1, ...alignItems }}>
                     <Tooltip title="Left align" aria-label="Left align" placement="top">
                         <span className="material-icons" onClick={() => {
@@ -152,10 +181,11 @@ export default function Texteditorcontainer(props) {
                         }} style={{ ...icons, ...neuromorphic, userSelect: 'none' }}>format_align_right</span>
                     </Tooltip>
                 </div>
+
                 <div className={{ ...alignItems, flex: 1 }}>
                     <Tooltip title="Change font style" aria-label="Change font style" placement="top">
                         <Button variant="outlined" aria-controls="font-menu" id="font-menu" aria-haspopup="true" onClick={(e) => handleMenuClick(e, 'font')} style={{ fontSize: '10px', ...neuromorphic }}>
-                            {styleObject.fontName || options[1]}
+                            {styleObject.fontName || fontNames[1]}
                         </Button>
                     </Tooltip>
                     <Menu
@@ -165,12 +195,12 @@ export default function Texteditorcontainer(props) {
                         open={Boolean(anchorEl?.font)}
                         onClose={() => handleClose('font')}
                     >
-                        {options.map((option, index) => (
+                        {fontNames.map((option, index) => (
                             <MenuItem
                                 key={option}
                                 selected={index === selectedIndex}
                                 onClick={(event) => {
-                                    document.execCommand('fontName', false, options[index])
+                                    document.execCommand('fontName', false, option[index])
                                     handleMenuItemClick(event, index, 'font')
                                 }}
                             >
@@ -179,18 +209,21 @@ export default function Texteditorcontainer(props) {
                         ))}
                     </Menu>
                 </div>
+
                 <div style={{ ...alignItems, flex: 3 }}>
                     <Counter setFontSize={setFontSize} type={'fontSize'} value={styleObject.fontSize} neuromorphic={neuromorphic} />
+                    
                     <Tooltip title="Bold" aria-label="Bold" placement="top">
                         <div>
                             <span
-                                class="material-icons"
+                                className="material-icons"
                                 style={{ ...icons, ...neuromorphic }}
                                 onClick={() => {
                                     document.execCommand('bold')
                                 }}>format_bold</span>
                         </div>
                     </Tooltip>
+                    
                     <Tooltip title="Underline" aria-label="Underline" placement="top">
                         <div>
                             <span className="material-icons" onClick={() => {
@@ -207,33 +240,57 @@ export default function Texteditorcontainer(props) {
                                 className="material-icons"
                                 aria-controls="image-menu"
                                 aria-haspopup="true"
-                                onClick={(e) => handleMenuClick(e, 'image')}
+                                onClick={(e) => handleMenuClick(e, 'imageMenu')}
                                 style={{ ...icons, ...neuromorphic }}>add_photo_alternate</span>
                         </div>
                     </Tooltip>
                     <Menu
                         id="image-menu"
-                        anchorEl={anchorEl?.image}
+                        anchorEl={anchorEl?.imageMenu}
                         keepMounted
-                        open={Boolean(anchorEl?.image)}
-                        onClose={() => handleClose('image')}
+                        open={Boolean(anchorEl?.imageMenu)}
+                        onClose={() => handleClose('imageMenu')}
                     >
-                        <MenuItem onClick={(e) => handleMenuClick(e, 'dialog')}>Profile</MenuItem>
+                        <input
+                            accept="image/*"
+                            style={{ display: "none" }}
+                            id="file-input"
+                            type="file"
+                            onChange={handleLocalImageFile}
+                        />
+                        <label htmlFor="file-input">
+                            <MenuItem onClick={() => handleClose('imageMenu')}>
+                                <ListItemIcon>
+                                    <i className="fas fa-upload " style={{ paddingLeft: '7%' }}></i>
+                                </ListItemIcon>
+                                <Typography variant="subtitle2">Upload form computer</Typography>
+                            </MenuItem>
+                        </label>
+                        <MenuItem onClick={(e) => handleMenuClick(e, 'dialog')}>
+                            <ListItemIcon>
+                                <InsertLinkIcon fontSize="small" />
+                            </ListItemIcon>
+                            <Typography variant="subtitle2">By URL</Typography>
+                        </MenuItem>
                     </Menu>
 
                     <Dialog
                         open={Boolean(anchorEl?.dialog)}
-                        onClose={() => handleClose('dialog')}
                         aria-labelledby="alert-dialog-title"
                         aria-describedby="alert-dialog-description"
                         className="image-dialog"
                     >
-                        <DialogTitle id="alert-dialog-title" style={{...imgUrl.isValid && { display: "none" }}}>
+                        <DialogTitle id="alert-dialog-title" style={{ ...imgUrl.isValid && { display: "none" } }}>
                             {"Insert image"}
                         </DialogTitle>
-                        <DialogContent style={{...imgUrl.isValid && { padding: 0 }}}>
-                            <DialogContentText id="alert-dialog-description">
-                                {imgUrl.isValid ? <img src={imgUrl.url} /> :
+                        <DialogContent style={{ ...imgUrl.isValid && { padding: 0 } }}>
+                            <DialogContentText id="alert-dialog-description" style={{ position: 'relative' }}>
+                                {imgUrl.isValid ?
+                                    <>
+                                        <span className="material-icons" style={imageCloseIcon} onClick={() => setImgUrl({ url: '', isValid: false })}>close</span>
+                                        <img src={imgUrl.url} />
+                                    </>
+                                    :
                                     <TextField
                                         id="add-image-url"
                                         type="url"
@@ -256,9 +313,22 @@ export default function Texteditorcontainer(props) {
                                     />}
                             </DialogContentText>
                         </DialogContent>
-                        <DialogActions>
-                            <Button onClick={handleClose}>Cancel</Button>
-                            <Button onClick={handleClose} autoFocus {...!imgUrl.isValid && { disabled: true }}>
+                        <DialogActions style={{ padding: '25px' }}>
+                            <Button
+                                onClick={
+                                    () => {
+                                        handleClose('dialog');
+                                        setImgUrl({ url: '', isValid: false })
+                                    }}
+                                style={{ color: 'dodgerblue' }}>Cancel</Button>
+                            <Button
+                                onClick={() => {
+                                    document.execCommand('insertImage', false, imgUrl.url)
+                                    handleClose('dialog');
+
+                                }}
+                                autoFocus
+                                style={{ color: 'dodgerblue' }} {...!imgUrl.isValid && { disabled: true }}>
                                 Insert
                             </Button>
                         </DialogActions>
@@ -399,23 +469,20 @@ export default function Texteditorcontainer(props) {
     )
 }
 
-
-
 const container = {
     display: 'flex',
     flexDirection: 'column',
     height: '100%',
     margin: '5%',
+    marginTop: '1%',
     alignItems: 'center',
-    maxHeight: '60vh',
-
 }
 
 const textareaContainer = {
     minWidth: '100%',
     width: '100%',
-    maxHeight: '100%',
-    minHeight: '300px',
+    height: '100%',
+    minHeight: '200px',
     borderRadius: 10,
     padding: 10,
     display: 'flex',
@@ -460,6 +527,18 @@ const icons = {
     borderRadius: '50%',
     padding: '8px 9px',
     userSelect: 'none',
+}
+
+const imageCloseIcon = {
+    position: 'absolute',
+    marginLeft: '88%',
+    marginTop: '2%',
+    padding: '8px',
+    paddingInlineStart: '15px',
+    paddingInlineEnd: '15px',
+    background: 'white',
+    borderRadius: '6px',
+    cursor: 'pointer'
 }
 
 
