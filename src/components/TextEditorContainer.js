@@ -1,21 +1,22 @@
 import React, { useContext, useRef, useState } from 'react';
-import { 
-    Button, 
-    ClickAwayListener, 
+import {
+    Button,
+    ClickAwayListener,
     Dialog,
-    DialogTitle, 
-    DialogActions, 
-    DialogContent, 
-    DialogContentText, 
-    ListItemIcon, 
-    makeStyles, 
-    Menu, 
-    MenuItem, 
-    Paper, 
-    Popper, 
-    TextField, 
-    Tooltip, 
-    Typography } from '@material-ui/core';
+    DialogTitle,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    ListItemIcon,
+    makeStyles,
+    Menu,
+    MenuItem,
+    Paper,
+    Popper,
+    TextField,
+    Tooltip,
+    Typography
+} from '@material-ui/core';
 import InsertLinkIcon from '@material-ui/icons/InsertLink';
 
 import Counter from './Counter';
@@ -31,12 +32,7 @@ const fontNames = [
     "Lucida Console, Courier, monospace"
 ];
 
-const useStyles = makeStyles((theme) => ({
-    backdrop: {
-        zIndex: theme.zIndex.drawer + 1,
-        color: '#fff',
-    },
-}));
+
 
 export default function Texteditorcontainer(props) {
     const isDark = useContext(ThemeContext);
@@ -128,9 +124,7 @@ export default function Texteditorcontainer(props) {
             var selection = window.getSelection();
             selection.removeAllRanges();
             selection.addRange(selectedTextObject.range);
-            linkText !== selectedTextObject.selectedText &&
-                document.execCommand('delete');
-            document.execCommand('insertHTML', false, `<a href=${url} contenteditable="false" target='_blank'>${linkText}</a>`);
+            document.execCommand('createLink', false, url);
             handleClose('link');
             linkValueRef.current.value = '';
         } catch (e) {
@@ -161,7 +155,7 @@ export default function Texteditorcontainer(props) {
     return (
         <section style={container}>
             <section style={{ ...styleBar, ...neuromorphic }} className="styleBar">
-                
+
                 <div style={{ flex: 1, ...alignItems }}>
                     <Tooltip title="Left align" aria-label="Left align" placement="top">
                         <span className="material-icons" onClick={() => {
@@ -212,7 +206,7 @@ export default function Texteditorcontainer(props) {
 
                 <div style={{ ...alignItems, flex: 3 }}>
                     <Counter setFontSize={setFontSize} type={'fontSize'} value={styleObject.fontSize} neuromorphic={neuromorphic} />
-                    
+
                     <Tooltip title="Bold" aria-label="Bold" placement="top">
                         <div>
                             <span
@@ -223,7 +217,7 @@ export default function Texteditorcontainer(props) {
                                 }}>format_bold</span>
                         </div>
                     </Tooltip>
-                    
+
                     <Tooltip title="Underline" aria-label="Underline" placement="top">
                         <div>
                             <span className="material-icons" onClick={() => {
@@ -323,6 +317,7 @@ export default function Texteditorcontainer(props) {
                                 style={{ color: 'dodgerblue' }}>Cancel</Button>
                             <Button
                                 onClick={() => {
+                                    document.getElementById('textarea').focus();
                                     document.execCommand('insertImage', false, imgUrl.url)
                                     handleClose('dialog');
 
@@ -373,23 +368,6 @@ export default function Texteditorcontainer(props) {
                         }}>
                         <ClickAwayListener onClickAway={() => handleClose('link')}>
                             <Paper className="link-panel" style={{ width: '400px', boxShadow: 'rgba(60, 64, 67, 0.15) 0px 1px 3px 1px' }}>
-                                <div style={{ display: 'flex' }}>
-                                    <TextField
-                                        id="linkText"
-                                        label="Text"
-                                        size="small"
-                                        variant="outlined"
-                                        style={{ margin: 10, userSelect: 'none', flex: 1 }}
-                                        value={linkText}
-                                        inputRef={linkTextRef}
-                                        onChange={(e) => {
-                                            setLinkText(e.target.value);
-                                        }}
-                                        InputLabelProps={{
-                                            shrink: true,
-                                        }}
-                                    />
-                                </div>
                                 <div style={{ display: 'flex', flexDirection: 'row', background: 'white' }}>
                                     <TextField
                                         id="linkValue"
@@ -411,7 +389,6 @@ export default function Texteditorcontainer(props) {
                                         style={{ margin: 10, userSelect: 'none', }}
                                         id="link-button"
                                         onClick={handleAddLink}
-                                        {...(!linkText) && { disabled: true }}
                                     >
                                         Apply
                                 </Button>
@@ -473,7 +450,7 @@ const container = {
     display: 'flex',
     flexDirection: 'column',
     height: '100%',
-    margin: '5%',
+    margin: '4%',
     marginTop: '1%',
     alignItems: 'center',
 }
@@ -482,10 +459,12 @@ const textareaContainer = {
     minWidth: '100%',
     width: '100%',
     height: '100%',
-    minHeight: '200px',
+    maxHeight: '350px',
+    minHeight: '350px',
     borderRadius: 10,
     padding: 10,
     display: 'flex',
+    overflow: 'hidden'
 }
 
 const textAreaStyle = {
@@ -496,6 +475,7 @@ const textAreaStyle = {
     margin: 10,
     flex: 1,
     textAlign: 'left',
+    color: 'black'
 }
 
 const styleBar = {

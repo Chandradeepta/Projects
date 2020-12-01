@@ -6,10 +6,12 @@ import { useState } from 'react';
 import { CONSTANTS } from './utils/constants';
 import { ThemeContextProvider } from './utils/ThemeContext';
 
-
+window.onload = function () {
+  document.getElementById("textarea").focus();
+};
 
 function App() {
-  const [isDark, setDark] = useState(false);
+  const [isDark, setDark] = useState(true);
   const outerTheme = createMuiTheme({
     palette: {
       primary: {
@@ -22,13 +24,13 @@ function App() {
   return (
     <div className="App" style={{ background: isDark ? CONSTANTS.DARK_MODE_BG : CONSTANTS.LIGHT_MODE_BG }}>
       <header className="App-header">
-          <h3 style={{ color: isDark ? CONSTANTS.LIGHT_MODE_BG : CONSTANTS.DARK_MODE_BG }}>EzDocs</h3>
-        <span 
+        <h3 style={{ color: isDark ? CONSTANTS.LIGHT_MODE_BG : CONSTANTS.DARK_MODE_BG }}>EzDocs</h3>
+        <span
           className="material-icons"
-          style={{color: isDark ? 'yellow' : CONSTANTS.DARK_MODE_BG}} 
+          style={{ color: isDark ? 'yellow' : CONSTANTS.DARK_MODE_BG }}
           onClick={() => setDark(!isDark)}>
-            {!isDark ? 'nights_stay' : 'wb_sunny'}
-          </span>
+          {!isDark ? 'nights_stay' : 'wb_sunny'}
+        </span>
       </header>
       <ThemeProvider theme={outerTheme}>
         <ThemeContextProvider value={isDark}>
