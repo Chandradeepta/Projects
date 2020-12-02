@@ -178,7 +178,7 @@ export default function Texteditorcontainer(props) {
 
                 <div className={{ ...alignItems, flex: 1 }}>
                     <Tooltip title="Change font style" aria-label="Change font style" placement="top">
-                        <Button variant="outlined" aria-controls="font-menu" id="font-menu" aria-haspopup="true" onClick={(e) => handleMenuClick(e, 'fontName')} style={{ fontSize: '10px', ...neuromorphic }}>
+                        <Button variant="outlined" aria-controls="font-menu" id="font-menu" aria-haspopup="true" onClick={(e) => handleMenuClick(e, 'fontName')} style={{ fontSize: '10px', ...neuromorphic, width: '252px' }}>
                             {CONSTANTS.fontNames[selectedIndex]}
                         </Button>
                     </Tooltip>
