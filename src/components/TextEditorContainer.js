@@ -79,12 +79,12 @@ export default function Texteditorcontainer(props) {
     })
 
     // Font options
-    const getSelectedFont = () => {
-        if (document.getSelection.toString()) {
-            var fontName = document.getSelection().getRangeAt(0).startContainer.parentNode;
-            setStyleObject({ ...styleObject, fontName: fontNames.filter((font) => font === fontName)[0] })
-        }
-    }
+    // const getSelectedFont = () => {
+    //     if (document.getSelection.toString()) {
+    //         var fontName = document.getSelection().getRangeAt(0).startContainer.parentNode;
+    //         setStyleObject({ ...styleObject, fontName: fontNames.filter((font) => font === fontName)[0] })
+    //     }
+    // }
 
     const handleMenuClick = (event, type) => {
         setAnchorEl({
@@ -100,8 +100,8 @@ export default function Texteditorcontainer(props) {
 
     // font family menu handle
     const handleMenuItemClick = (event, index, type) => {
-        getSelectedFont();
         setSelectedIndex(index);
+        document.execCommand('fontName', false, fontNames[index]);
         setAnchorEl({
             [type]: null
         });
@@ -178,24 +178,23 @@ export default function Texteditorcontainer(props) {
 
                 <div className={{ ...alignItems, flex: 1 }}>
                     <Tooltip title="Change font style" aria-label="Change font style" placement="top">
-                        <Button variant="outlined" aria-controls="font-menu" id="font-menu" aria-haspopup="true" onClick={(e) => handleMenuClick(e, 'font')} style={{ fontSize: '10px', ...neuromorphic }}>
-                            {styleObject.fontName || fontNames[1]}
+                        <Button variant="outlined" aria-controls="font-menu" id="font-menu" aria-haspopup="true" onClick={(e) => handleMenuClick(e, 'fontName')} style={{ fontSize: '10px', ...neuromorphic }}>
+                            {fontNames[selectedIndex]}
                         </Button>
                     </Tooltip>
                     <Menu
                         id="font-menu"
-                        anchorEl={anchorEl?.font}
+                        anchorEl={anchorEl?.fontName}
                         keepMounted
-                        open={Boolean(anchorEl?.font)}
-                        onClose={() => handleClose('font')}
+                        open={Boolean(anchorEl?.fontName)}
+                        onClose={() => handleClose('fontName')}
                     >
                         {fontNames.map((option, index) => (
                             <MenuItem
                                 key={option}
                                 selected={index === selectedIndex}
                                 onClick={(event) => {
-                                    document.execCommand('fontName', false, option[index])
-                                    handleMenuItemClick(event, index, 'font')
+                                    handleMenuItemClick(event, index, 'fontName')
                                 }}
                             >
                                 {option}
