@@ -30,7 +30,7 @@ function App() {
 
   return (
     <div className="App" style={{ background: isDark ? CONSTANTS.DARK_MODE_BG : CONSTANTS.LIGHT_MODE_BG }}>
-      <header style={{...neuromorphic,backgroundColor: 'white',borderBottomLeftRadius: '60px', borderBottomRightRadius: '60px', padding: '8px'}}>
+      <header style={{...neuromorphic,borderBottomLeftRadius: '60px', borderBottomRightRadius: '60px', padding: '8px'}}>
         <div className={`App-header ${!isDark && 'anime'} `}>
           <h3>Ez <span id="docs">Docs</span></h3>
           <span
