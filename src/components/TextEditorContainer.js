@@ -8,7 +8,6 @@ import {
     DialogContent,
     DialogContentText,
     ListItemIcon,
-    makeStyles,
     Menu,
     MenuItem,
     Paper,
@@ -26,11 +25,21 @@ import { CONSTANTS } from '../utils/constants';
 import './TextEditorContainer.css';
 
 
-const fontNames = [
-    "Times New Roman, Times, serif",
-    "Arial, Helvetica, sans-serif",
-    "Lucida Console, Courier, monospace"
-];
+// const CONSTANTS.fontNames = [
+//     "Times New Roman, Times, serif",
+//     "Arial, Helvetica, sans-serif",
+//     "Lucida Console, Courier, monospace",
+//     "Courier New",
+//     "Verdana",
+//     "Georgia",
+//     "Palatino",
+//     "Garamond",
+//     "Bookman",
+//     "Tahoma",
+//     "Trebuchet MS",
+//     "Impact",
+//     "Comic Sans MS",
+// ];
 
 
 
@@ -46,7 +55,7 @@ export default function Texteditorcontainer(props) {
 
     const [styleObject, setStyleObject] = useState({
         fontSize: 3,
-        fontName: fontNames[1]
+        fontName: CONSTANTS.fontNames[1]
     });
 
     // Menu state
@@ -70,21 +79,12 @@ export default function Texteditorcontainer(props) {
 
     // Add link textfield refs
     const linkValueRef = useRef();
-    const linkTextRef = useRef();
 
     // Image url
     const [imgUrl, setImgUrl] = useState({
         url: '',
         isValid: false
     })
-
-    // Font options
-    // const getSelectedFont = () => {
-    //     if (document.getSelection.toString()) {
-    //         var fontName = document.getSelection().getRangeAt(0).startContainer.parentNode;
-    //         setStyleObject({ ...styleObject, fontName: fontNames.filter((font) => font === fontName)[0] })
-    //     }
-    // }
 
     const handleMenuClick = (event, type) => {
         setAnchorEl({
@@ -101,7 +101,7 @@ export default function Texteditorcontainer(props) {
     // font family menu handle
     const handleMenuItemClick = (event, index, type) => {
         setSelectedIndex(index);
-        document.execCommand('fontName', false, fontNames[index]);
+        document.execCommand('fontName', false, CONSTANTS.fontNames[index]);
         setAnchorEl({
             [type]: null
         });
@@ -179,7 +179,7 @@ export default function Texteditorcontainer(props) {
                 <div className={{ ...alignItems, flex: 1 }}>
                     <Tooltip title="Change font style" aria-label="Change font style" placement="top">
                         <Button variant="outlined" aria-controls="font-menu" id="font-menu" aria-haspopup="true" onClick={(e) => handleMenuClick(e, 'fontName')} style={{ fontSize: '10px', ...neuromorphic }}>
-                            {fontNames[selectedIndex]}
+                            {CONSTANTS.fontNames[selectedIndex]}
                         </Button>
                     </Tooltip>
                     <Menu
@@ -189,7 +189,7 @@ export default function Texteditorcontainer(props) {
                         open={Boolean(anchorEl?.fontName)}
                         onClose={() => handleClose('fontName')}
                     >
-                        {fontNames.map((option, index) => (
+                        {CONSTANTS.fontNames.map((option, index) => (
                             <MenuItem
                                 key={option}
                                 selected={index === selectedIndex}

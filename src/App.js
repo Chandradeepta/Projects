@@ -12,6 +12,13 @@ window.onload = function () {
 
 function App() {
   const [isDark, setDark] = useState(true);
+  const neuromorphic = {
+    boxShadow: !isDark ?
+      `-10px -10px 20px 0 ${CONSTANTS.LIGHT_MODE_BS_LIGHT_COLOR}, 10px 10px 20px 0 ${CONSTANTS.LIGHT_MODE_BS_DARK_COLOR}` :
+      `4px 4px 8px 0 ${CONSTANTS.DARK_MODE_BS_DARK_COLOR}, -4px -4px 8px 0 ${CONSTANTS.DARK_MODE_BS_LIGHT_COLOR}`,
+    background: isDark ? `${CONSTANTS.DARK_MODE_BG}` : `${CONSTANTS.LIGHT_MODE_BG}`,
+    color: isDark ? `${CONSTANTS.LIGHT_MODE_BG}` : `${CONSTANTS.DARK_MODE_BG}`
+  }
   const outerTheme = createMuiTheme({
     palette: {
       primary: {
@@ -23,14 +30,16 @@ function App() {
 
   return (
     <div className="App" style={{ background: isDark ? CONSTANTS.DARK_MODE_BG : CONSTANTS.LIGHT_MODE_BG }}>
-      <header className="App-header">
-        <h3 style={{ color: isDark ? CONSTANTS.LIGHT_MODE_BG : CONSTANTS.DARK_MODE_BG }}>EzDocs</h3>
-        <span
-          className="material-icons"
-          style={{ color: isDark ? 'yellow' : CONSTANTS.DARK_MODE_BG }}
-          onClick={() => setDark(!isDark)}>
-          {!isDark ? 'nights_stay' : 'wb_sunny'}
-        </span>
+      <header style={{...neuromorphic,backgroundColor: 'white',borderBottomLeftRadius: '60px', borderBottomRightRadius: '60px', padding: '8px'}}>
+        <div className={`App-header ${!isDark && 'anime'} `}>
+          <h3>Ez <span id="docs">Docs</span></h3>
+          <span
+            className="material-icons"
+            style={{ color: isDark ? 'yellow' : CONSTANTS.DARK_MODE_BG }}
+            onClick={() => setDark(!isDark)}>
+            {!isDark ? 'nights_stay' : 'wb_sunny'}
+          </span>
+        </div>
       </header>
       <ThemeProvider theme={outerTheme}>
         <ThemeContextProvider value={isDark}>

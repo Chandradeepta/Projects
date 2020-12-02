@@ -18,10 +18,36 @@
 .App-header > h3 {
   width: 90%;
   letter-spacing: 5px;
+  color: #fff;
+  height: 25px;
 }
 
 .App-header > .material-icons {
   cursor: pointer;
+}
+
+.anime {
+  background-size: 200% 100%; 
+  background-image: linear-gradient(to left,  #fff 50%, #1ea3ff 50%);
+  border-bottom-left-radius: 60px;
+  border-bottom-right-radius: 60px;
+  transition: 
+    background-position .5s ease-in-out, 
+}
+
+.anime:hover {
+  background-position: 52.5%;
+}
+
+.anime:hover #docs {
+  animation: change-color .8s ease-in forwards;
+
+}
+
+@keyframes change-color {
+  100% {
+    color: #1ea3ff;
+  }
 }
 
 @media print {
