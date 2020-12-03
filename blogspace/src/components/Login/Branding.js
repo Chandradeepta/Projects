@@ -3,13 +3,15 @@ export default function Branding(props) {
 
     return (
         <section style={brandingContainer}>
-            <p style={{color: 'white', paddingTop: 70, fontSize: 25}}>Welcome to ZAKI</p>
+            <p style={brandingHeader}>Welcome to BlogSpace</p>
+            <p style={brandTagline}> A Directory Of Wonderful Blogs</p>
         </section>
     )
 }
 
 const brandingContainer = {
     display: 'flex',
+    flexDirection:'column',
     flex: 2.5,
     background: '#2250d9',
     zIndex: 1,
@@ -17,4 +19,28 @@ const brandingContainer = {
     height: '70vh',
     justifyContent: 'center',
     alignItems: 'flex-start'
+}
+
+const brandingHeader = {
+    color: 'white',
+    display:'flex',
+    flex:1, 
+    paddingTop: 70,
+    paddingLeft:25,
+    fontSize: 25,
+    fontFamily:'Montserrat',
+    flexDirection:'column',
+    width:'auto',
+    justifyContent:'space-around'
+}
+
+const brandTagline = {
+    color:'white',
+    paddingTop:40,
+    display:'flex',
+    flex:1,
+    fontSize:15,
+    fontFamily:'Montserrat',
+    width:'100%',
+    justifyContent:'space-around'
 }

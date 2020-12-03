@@ -5,7 +5,7 @@ export default function LoginNav(props) {
         <section style={navConatiner}>
             <section style={logoStyle}>
                 <span class="material-icons">local_florist</span>
-                <span style={{ letterSpacing: 8 }}>ZAKI</span>
+                <span style={{ letterSpacing: 4 }}>BlogSpace</span>
             </section>
             <nav style={navStyles}>
                 <div style={navButtonStyles}>
